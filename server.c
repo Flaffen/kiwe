@@ -111,7 +111,6 @@ struct request_info *create_request_info(struct sockaddr_storage their_addr, int
 struct llist *get_request_headers(char *request)
 {
 	char line[512] = {0};
-	struct hashtable *ht = hashtable_create(0, NULL);
 	struct llist *list = llist_create(); 
 
 	while (consume_http_line(&request, line) != -1) {
@@ -120,19 +119,17 @@ struct llist *get_request_headers(char *request)
 		sscanf(line, "%s %s", key, value);
 		key[strlen(key) - 1] = '\0';
 
-		char htkey[strlen(key) + 1];
-		strcpy(htkey, key);
-		char *htvalue = malloc(strlen(value) + 1);
-		strcpy(htvalue, value);
+		char *shortkey = malloc(strlen(key) + 1);
+		strcpy(shortkey, key);
 
-		char *llist_entry[2];
-		llist_entry[0] = htkey;
-		llist_entry[1] = htvalue;
-		llist_append(list, (void *) llist_entry);
+		char *shortvalue = malloc(strlen(value) + 1);
+		strcpy(shortvalue, value);
 
-		void *voided = (void *) llist_entry;
+		char **entry = malloc(sizeof(*entry));
+		entry[0] = shortkey;
+		entry[1] = shortvalue;
 
-		char (*returnedlist)[2] = (char (*)[2]) voided;
+		llist_append(list, entry);
 
 		memset(line, 0, 512);
 	}
@@ -145,35 +142,49 @@ struct response {
 	void *data;
 };
 
-void print_ht_entry(void *key, void *value)
+char **create_header(char *key, char *value)
 {
-	printf("");
+	char **headerp = malloc(sizeof(**headerp));
+	
+	char *keyp = malloc(sizeof(*keyp));
+	strcpy(keyp, key);
+
+	char *valuep = malloc(sizeof(*valuep));
+	strcpy(valuep, value);
+
+	headerp[0] = keyp;
+	headerp[1] = valuep;
+
+	return headerp;
 }
 
 struct response *get_response(char *method, char *path, struct llist *req_headers)
 {
 	struct response *resp = malloc(sizeof(*resp));
 	struct llist *resp_headers = llist_create();
+	resp->headers = resp_headers;
 
-	if (strcmp(path, "hello") == 0) {
+	if (strcmp(path, "/hello") == 0) {
 		char *response_string = "hello";
 		resp->data = response_string;
+		char content_length[512];
+		sprintf(content_length, "%d", strlen(response_string));
+		llist_append(resp_headers, create_header("Content-Length", content_length));
+		llist_append(resp_headers, create_header("Content-Type", "text/plain"));
 	}
 
 	return resp;
 }
 
-void print_each_element(void *data, void *arg)
+void print_header(void *data, void *arg)
 {
-	char (*header)[2] = (char (*)[2]) data;
-	printf("%s %s\n", header[0], header[1]);
+	char **header = (char **) data;
+	printf("%s: %s\n", header[0], header[1]);
 }
 
-char *get_headers(struct llist *headers)
+void print_headers(struct llist *headers_list)
 {
-	// DOES NOT WORK
-	char (*header)[2] = (char (*)[2]) headers->head;
-	printf("%s\n", header[0]);
+	llist_foreach(headers_list, print_header, NULL);
 }
 
 void *handle_http_request(void *data)
@@ -197,8 +208,9 @@ void *handle_http_request(void *data)
 
 	struct llist *req_headers = get_request_headers(request);
 
-	//struct response *resp = get_response(method, path, req_headers);
-	get_headers(req_headers);
+	struct response *resp = get_response(method, path, req_headers);
+
+	print_headers(resp->headers);
 
 	char *respstr = "HTTP/1.1 404 NOT FOUND";
 	send(newfd, respstr, strlen(respstr), 0);
