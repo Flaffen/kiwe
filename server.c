@@ -19,6 +19,27 @@
 #include "request.h"
 #include "response.h"
 
+void append_header_to_response(void *data, void *arg)
+{
+	char *response_data = (char *) arg;
+	char **header = (char **) data;
+	char *key = header[0];
+	char *value = header[1];
+	char http_header[512] = {0};
+	sprintf(http_header, "%s: %s\n", key, value);
+
+	strcat(response_data, http_header);
+}
+
+void assemble_response_data(struct response *resp, char response_data[])
+{
+	strcat(response_data, resp->status);
+	llist_foreach(resp->headers, append_header_to_response, response_data);
+
+	strcat(response_data, "\n");
+	strcat(response_data, resp->data);
+}
+
 void *handle_http_request(void *data)
 {
 	struct request_info *re = (struct request_info *) data;
@@ -42,8 +63,12 @@ void *handle_http_request(void *data)
 
 	struct response *resp = get_response(method, path, req_headers);
 
-	char *respstr = "HTTP/1.1 404 NOT FOUND";
-	send(newfd, respstr, strlen(respstr), 0);
+	char response_data[65536] = {0};
+	assemble_response_data(resp, response_data);
+
+	printf("%s\n", response_data);
+
+	send(newfd, response_data, 65536, 0);
 
 	printf("%s:%d disconnected\n", s, ((struct sockaddr_in *) &their_addr)->sin_port);
 

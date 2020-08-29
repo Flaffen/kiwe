@@ -23,8 +23,9 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 {
 	struct response *resp = malloc(sizeof(*resp));
 	struct llist *resp_headers = llist_create();
+	char *status = malloc(sizeof(*status));
+	status = "HTTP/1.1 404 NOT FOUND\n";
 	resp->headers = resp_headers;
-
 	if (strcmp(path, "/hello") == 0) {
 		char *response_string = "hello";
 		resp->data = response_string;
@@ -32,7 +33,15 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 		sprintf(content_length, "%d", strlen(response_string));
 		llist_append(resp_headers, create_header("Content-Length", content_length));
 		llist_append(resp_headers, create_header("Content-Type", "text/plain"));
+	} else {
+		resp->data = "NOT FOUND";
+		char content_length[512];
+		sprintf(content_length, "%d", strlen(resp->data));
+		llist_append(resp_headers, create_header("Content-Length", content_length));
+		llist_append(resp_headers, create_header("Content-Type", "text/plain"));
 	}
+
+	resp->status = status;
 
 	return resp;
 }

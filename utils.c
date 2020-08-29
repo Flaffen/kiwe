@@ -76,3 +76,11 @@ void print_headers(struct llist *headers_list)
 {
 	llist_foreach(headers_list, print_header, NULL);
 }
+
+void get_header_string(char **header, char str[])
+{
+	char *key = header[0];
+	char *value = header[1];
+
+	sprintf(str, "%s: %s", key, value);
+}

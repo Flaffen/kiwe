@@ -1,4 +1,5 @@
 struct response {
+	char *status;
 	struct llist *headers;
 	void *data;
 };
