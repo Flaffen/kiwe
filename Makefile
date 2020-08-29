@@ -1,28 +1,31 @@
 all: server
 
-server: server.o net.o llist.o hashtable.o utils.o request.o response.o
-	gcc -g -lpthread -o server server.o net.o llist.o hashtable.o utils.o request.o response.o
+server: server.o net.o llist.o hashtable.o utils.o request.o response.o file.o
+	clang -g -lpthread -o server server.o net.o llist.o hashtable.o utils.o request.o response.o file.o
 
 server.o: server.c
-	gcc -c -g server.c
+	clang -c -g server.c
 
 net.o: net.c
-	gcc -c -g net.c
+	clang -c -g net.c
 
 llist.o: llist.c
-	gcc -c -g llist.c
+	clang -c -g llist.c
 
 hashtable.o: hashtable.c
-	gcc -c -g hashtable.c
+	clang -c -g hashtable.c
 
 utils.o: utils.c
-	gcc -c -g utils.c
+	clang -c -g utils.c
 
 request.o: request.c
-	gcc -c -g request.c
+	clang -c -g request.c
 
 response.o: response.c
-	gcc -c -g response.c
+	clang -c -g response.c
+
+file.o: file.c
+	clang -c -g file.c
 
 clean:
 	rm -f server.o net.o llist.o hashtable.o utils.o request.o response.o

@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "request.h"
 #include "response.h"
+#include "file.h"
 
 struct response *get_response(char *method, char *path, struct llist *req_headers)
 {
@@ -27,12 +28,13 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 	status = "HTTP/1.1 404 NOT FOUND\n";
 	resp->headers = resp_headers;
 	if (strcmp(path, "/hello") == 0) {
-		char *response_string = "hello";
-		resp->data = response_string;
+		struct file_data *fdata = load_file("file.txt");
 		char content_length[512];
-		sprintf(content_length, "%d", strlen(response_string));
+		sprintf(content_length, "%d", fdata->len);
 		llist_append(resp_headers, create_header("Content-Length", content_length));
-		llist_append(resp_headers, create_header("Content-Type", "text/plain"));
+		llist_append(resp_headers, create_header("Content-Type", "text/html"));
+		resp->data = fdata->data;
+		status = "HTTP/1.1 200 OK\n";
 	} else {
 		resp->data = "NOT FOUND";
 		char content_length[512];
