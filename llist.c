@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "llist.h"
 
 struct llist_node {
@@ -28,8 +29,14 @@ void llist_destroy(struct llist *llist)
 
 	while (n != NULL) {
 		next = n->next;
-		free(n);
+		
+		// @TODO: Define a function that frees a node.
+		char **data = (char **) n->data;
+		free(data[0]);
+		free(data[1]);
+		free(data);
 
+		free(n);
 		n = next;
 	}
 

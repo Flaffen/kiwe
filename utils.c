@@ -66,6 +66,14 @@ char **create_header(char *key, char *value)
 	return headerp;
 }
 
+char **create_header_int(char *key, int value)
+{
+	char valuestr[512];
+	sprintf(valuestr, "%d", value);
+
+	return create_header(key, valuestr);
+}
+
 void print_header(void *data, void *arg)
 {
 	char **header = (char **) data;
@@ -83,4 +91,24 @@ void get_header_string(char **header, char str[])
 	char *value = header[1];
 
 	sprintf(str, "%s: %s", key, value);
+}
+
+int content_length_comparison_function(void *arg1, void *arg2)
+{
+	char *str = (char *) arg1;
+	char **header = (char **) arg2;
+
+	return strcmp(str, header[0]);
+}
+
+int get_content_length(struct llist *headers)
+{
+	void *foundv = llist_find(headers, "Content-Length", content_length_comparison_function);
+
+	if (foundv != NULL) {
+		char **found = (char **) foundv;
+		return atoi(found[1]);
+	}
+
+	return -1;
 }
