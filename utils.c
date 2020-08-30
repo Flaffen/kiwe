@@ -103,6 +103,9 @@ int content_length_comparison_function(void *arg1, void *arg2)
 
 int get_content_length(struct llist *headers)
 {
+	if (headers == NULL)
+		return -1;
+
 	void *foundv = llist_find(headers, "Content-Length", content_length_comparison_function);
 
 	if (foundv != NULL) {

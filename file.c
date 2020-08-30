@@ -5,6 +5,31 @@
 
 struct file_data *load_file(char *path)
 {
+	char *buffer;
+
+	FILE *fp = fopen(path, "r");
+
+	if (fp == NULL) {
+		return NULL;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	size_t bufsize = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	buffer = malloc(bufsize);
+
+	fread(buffer, 1, bufsize, fp);
+
+	struct file_data *fdata = malloc(sizeof(struct file_data));
+	fdata->data = buffer;
+	fdata->len = bufsize;
+
+	return fdata;
+}
+
+struct file_data *load_file2(char *path)
+{
 	char *buffer, *p;
 	struct stat buf;
 	

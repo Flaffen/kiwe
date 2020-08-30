@@ -19,7 +19,7 @@
 #include "request.h"
 
 struct request_info *create_request_info(struct sockaddr_storage their_addr, int sockfd) {
-	struct request_info *re = malloc(sizeof(*re));
+	struct request_info *re = malloc(sizeof(struct request_info));
 
 	re->their_addr = their_addr;
 	re->sockfd = sockfd;
@@ -29,7 +29,7 @@ struct request_info *create_request_info(struct sockaddr_storage their_addr, int
 
 struct llist *get_request_headers(char *request)
 {
-	char line[512] = {0};
+	char line[512];
 	struct llist *list = llist_create(); 
 
 	while (consume_http_line(&request, line) != -1) {
@@ -44,12 +44,11 @@ struct llist *get_request_headers(char *request)
 		char *shortvalue = malloc(strlen(value) + 1);
 		strcpy(shortvalue, value);
 
-		char **entry = malloc(sizeof(*entry));
+		char **entry = malloc(2 * sizeof(*entry));
 		entry[0] = shortkey;
 		entry[1] = shortvalue;
 
 		llist_append(list, entry);
-
 		memset(line, 0, 512);
 	}
 

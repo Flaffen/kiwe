@@ -51,39 +51,36 @@ void *handle_http_request(void *data)
 	printf("%s:%d connected\n", s, ((struct sockaddr_in *) &their_addr)->sin_port);
 
 	char request[65536];
-	memset(request, 0, 65536);
-	
-	while (recv(newfd, request, 65536, 0) > 0) {
-		char *first = request;
 
-		char first_line[512] = {0};
-		char method[16], path[256];
+	recv(newfd, request, 65536, 0);
+	char *first = request;
+	char first_line[512] = {0};
+	char method[16], path[256];
 
-		consume_http_line(&first, first_line);
-		sscanf(first_line, "%s %s", method, path);
+	consume_http_line(&first, first_line);
+	sscanf(first_line, "%s %s", method, path);
 
-		struct llist *req_headers = get_request_headers(request);
-		struct response *resp = get_response(method, path, req_headers);
+	struct llist *req_headers = get_request_headers(request);
+	struct response *resp = get_response(method, path, req_headers);
 
-		int content_length = get_content_length(resp->headers);
-		size_t max_response_length = content_length + 256000;
-		char *response_data = malloc(max_response_length);
-		assemble_response_data(resp, response_data);
+	size_t max_response_length = 256000;
 
-		printf("%s", response_data);
+	char *response_data = malloc(max_response_length);
 
-		send(newfd, response_data, max_response_length,0);
+	memset(response_data, 0, max_response_length);
 
-		llist_destroy(req_headers);
-		free_response(resp);
-		free(response_data);
-		memset(request, 0, 65536);
-	}
+	assemble_response_data(resp, response_data);
 
-	printf("%s:%d disconnected\n", s, ((struct sockaddr_in *) &their_addr)->sin_port);
+	send(newfd, response_data, max_response_length, 0);
+
+	llist_destroy(req_headers);
+	free_response(resp);
+	free(response_data);
 
 	free(re);
+
 	close(newfd);
+	printf("%s:%d disconnected\n", s, ((struct sockaddr_in *) &their_addr)->sin_port);
 
 	pthread_exit((void *) 0);
 }

@@ -73,10 +73,12 @@ int get_listener_socket(char *port)
 			return -2;
 		}
 
+
 		struct timeval tv;
 		tv.tv_sec = 1;
 		tv.tv_usec = 0;
 		setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *) &tv, sizeof(tv));
+
 
 		// See if we can bind this socket to this local IP address. This
 		// associates the file descriptor (the socket descriptor) that

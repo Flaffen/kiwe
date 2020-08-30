@@ -37,50 +37,61 @@ struct response *get_404(struct response *resp)
 
 struct response *get_response(char *method, char *path, struct llist *req_headers)
 {
-	struct response *resp = malloc(sizeof(*resp));
-	struct llist *resp_headers = llist_create();
+	struct response *res = malloc(sizeof(struct response));
+
 	char *status;
+	struct llist *headers = llist_create();
+	char *data;
+	size_t data_len;
+	size_t response_len;
+
 	char *filename = path + 1;
 
-	status = "HTTP/1.1 404 NOT FOUND";
-	resp->headers = resp_headers;
-
-	if (strcmp(path, "/") == 0) {
-		struct file_data *fdata = load_file("index.html");
-
-		status = "HTTP/1.1 200 OK\n";
-		llist_append(resp->headers, create_header_int("Content-Length", fdata->len));
-		llist_append(resp->headers, create_header("Content-Type", "text/html"));
-		resp->data = fdata->data;
-	} else if (strcmp(path, "/") != 0) {
-		char full_filename[128] = {0};
-		strcat(full_filename, "serverroot/");
-		strcat(full_filename, filename);
-		struct file_data *fdata = load_file(full_filename);
-
-		if (fdata == NULL) {
-			return get_404(resp);
-		}
-
-		char *mime_type = mime_type_get(filename);
-		status = "HTTP/1.1 200 OK\n";
-		llist_append(resp->headers, create_header_int("Content-Length", fdata->len));
-		llist_append(resp->headers, create_header("Content-Type", mime_type));
-		resp->data = fdata->data;
-	} else {
-		get_404(resp);
+	char *qm = strchr(filename, '?');
+	if (qm != NULL) {
+		*qm = '\0';
 	}
 
-	resp->status = malloc(sizeof(*status));
-	strcpy(resp->status, status);
+	if (strcmp(path, "/") == 0) {
+		filename = "index.html";
+	}
 
-	return resp;
+	char fullpath[512] = {0};
+	strcat(fullpath, "serverroot/");
+	strcat(fullpath, filename);
+	struct file_data *fdata = load_file(fullpath);
+
+	if (fdata != NULL) {
+		status = "HTTP/1.1 200 OK\n";
+		char content_length[64];
+		sprintf(content_length, "%d", fdata->len);
+		data = fdata->data;
+		data_len = fdata->len;
+		llist_append(headers, create_header("Content-Type", "text/html"));
+		llist_append(headers, create_header("Content-Length", content_length));
+	} else {
+		status = "HTTP/1.1 404 NOT FOUND\n";
+		struct file_data *fdata = load_file("404.html");
+		char content_length[64];
+		sprintf(content_length, "%d", fdata->len);
+		data = fdata->data;
+		data_len = fdata->len;
+		llist_append(headers, create_header("Content-Type", "text/html"));
+		llist_append(headers, create_header("Content-Length", content_length));
+	}
+
+	res->status = malloc(sizeof(strlen(status)));
+	strcpy(res->status, status);
+
+	res->headers = headers;
+
+	res->data = malloc(data_len);
+	strcpy(res->data, data);
+
+	return res;
 }
 
 void free_response(struct response *res)
 {
-	free(res->status);
-	llist_destroy(res->headers);
-	free(res->data);
-	free(res);
+	// nope.
 }
