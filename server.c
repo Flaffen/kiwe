@@ -19,6 +19,8 @@
 #include "request.h"
 #include "response.h"
 
+#define PORT "3490"
+
 void append_header_to_response(void *data, void *arg)
 {
 	char *response_data = (char *) arg;
@@ -37,7 +39,8 @@ void assemble_response_data(struct response *resp, char response_data[])
 	llist_foreach(resp->headers, append_header_to_response, response_data);
 
 	strcat(response_data, "\n");
-	strcat(response_data, resp->data);
+	char *startbody = strrchr(response_data, '\n') + 1;
+	memcpy(startbody, resp->data, resp->data_len);
 }
 
 void *handle_http_request(void *data)
@@ -89,12 +92,8 @@ int main(int argc, char *argv[])
 {
 	int listenfd, newfd;
 	struct sockaddr_storage their_addr;
-	char *port = "3490";
+	char *port = argc > 1 ? argv[1] : PORT;
 	pthread_t threadid = 0;
-
-	if (argc > 1) {
-		port = argv[1];
-	}
 
 	listenfd = get_listener_socket(port);
 	if (listenfd < 0) {

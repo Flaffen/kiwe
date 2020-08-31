@@ -64,29 +64,32 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 	if (fdata != NULL) {
 		status = "HTTP/1.1 200 OK\n";
 		char content_length[64];
-		sprintf(content_length, "%d", fdata->len);
+		sprintf(content_length, "%zu", fdata->len);
 		data = fdata->data;
 		data_len = fdata->len;
-		llist_append(headers, create_header("Content-Type", "text/html"));
+		char *mime_type = mime_type_get(fullpath);
+		printf("%s\n", mime_type);
+		llist_append(headers, create_header("Content-Type", mime_type));
 		llist_append(headers, create_header("Content-Length", content_length));
 	} else {
 		status = "HTTP/1.1 404 NOT FOUND\n";
 		struct file_data *fdata = load_file("404.html");
 		char content_length[64];
-		sprintf(content_length, "%d", fdata->len);
+		sprintf(content_length, "%zu", fdata->len);
 		data = fdata->data;
 		data_len = fdata->len;
 		llist_append(headers, create_header("Content-Type", "text/html"));
 		llist_append(headers, create_header("Content-Length", content_length));
 	}
 
-	res->status = malloc(sizeof(strlen(status)));
+	res->status = malloc(sizeof(strlen(status) + 1));
 	strcpy(res->status, status);
 
 	res->headers = headers;
 
+	res->data_len = data_len;
 	res->data = malloc(data_len);
-	strcpy(res->data, data);
+	memcpy(res->data, data, data_len);
 
 	return res;
 }
