@@ -68,7 +68,6 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 		data = fdata->data;
 		data_len = fdata->len;
 		char *mime_type = mime_type_get(fullpath);
-		printf("%s\n", mime_type);
 		llist_append(headers, create_header("Content-Type", mime_type));
 		llist_append(headers, create_header("Content-Length", content_length));
 	} else {
@@ -96,5 +95,8 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 
 void free_response(struct response *res)
 {
-	// nope.
+	free(res->status);
+	llist_destroy(res->headers);
+	free(res->data);
+	free(res);
 }

@@ -1,0 +1,96 @@
+waiting for connections on port 3490
+[socket 4] 192.168.1.131:59586 connected
+GET /images/slide03.jpg?1598849010089 HTTP/1.1
+[socket 4] rcount 1 192.168.1.131:59586 disconnected
+[socket 4] 192.168.1.131:59842 connected
+GET / HTTP/1.1
+[socket 4] rcount 1 192.168.1.131:59842 disconnected
+[socket 5] 192.168.1.131:60098 connected
+[socket 4] 192.168.1.131:60354 connected
+[socket 8] 192.168.1.131:60610 connected
+[socket 9] 192.168.1.131:60866 connected
+[socket 10] 192.168.1.131:61122 connected
+[socket 11] 192.168.1.131:61378 connected
+GET /js/jquery-migrate-1.2.1.js HTTP/1.1
+GET /js/jquery.js HTTP/1.1
+GET /css/camera.css HTTP/1.1
+GET /css/grid.css HTTP/1.1
+GET /css/style.css HTTP/1.1
+GET /css/jquery.fancybox.css HTTP/1.1
+[socket 12] 192.168.1.131:61634 connected
+[socket 11] rcount 1 192.168.1.131:61378 disconnected
+GET /js/device.min.js HTTP/1.1
+[socket 5] rcount 1 192.168.1.131:60098 disconnected
+[socket 10] rcount 1 192.168.1.131:61122 disconnected
+[socket 4] rcount 1 192.168.1.131:60354 disconnected
+[socket 9] rcount 1 192.168.1.131:60866 disconnected
+[socket 8] rcount 1 192.168.1.131:60610 disconnected
+[socket 12] rcount 1 192.168.1.131:61634 disconnected
+[socket 18] 192.168.1.131:61890 connected
+[socket 4] 192.168.1.131:62146 connected
+GET /css/animate.css HTTP/1.1
+[socket 18] rcount 1 192.168.1.131:61890 disconnected
+GET /js/script.js HTTP/1.1
+[socket 5] 192.168.1.131:62402 connected
+GET /images/TM_logo.png HTTP/1.1
+[socket 4] rcount 1 192.168.1.131:62146 disconnected
+[socket 5] rcount 1 192.168.1.131:62402 disconnected
+[socket 10] 192.168.1.131:62658 connected
+[socket 4] 192.168.1.131:62914 connected
+GET /images/parallax01.jpg HTTP/1.1
+GET /images/lazy-loader.gif HTTP/1.1
+[socket 4] rcount 1 192.168.1.131:62914 disconnected
+[socket 10] rcount 1 192.168.1.131:62658 disconnected
+[socket 5] 192.168.1.131:63170 connected
+[socket 4] 192.168.1.131:63426 connected
+GET /js/jquery.easing.1.3.js HTTP/1.1
+GET /js/jquery.cookie.js HTTP/1.1
+[socket 10] 192.168.1.131:63682 connected
+[socket 23] 192.168.1.131:63938 connected
+[socket 24] 192.168.1.131:64194 connected
+GET /js/tmstickup.js HTTP/1.1
+[socket 4] rcount 1 192.168.1.131:63426 disconnected
+[socket 25] 192.168.1.131:64450 connected
+GET /js/jquery.mousewheel.min.js HTTP/1.1
+[socket 4] 192.168.1.131:64706 connected
+GET /js/jquery.simplr.smoothscroll.min.js HTTP/1.1
+GET /js/superfish.js HTTP/1.1
+[socket 5] rcount 1 192.168.1.131:63170 disconnected
+[socket 28] 192.168.1.131:64962 connected
+[socket 10] rcount 1 192.168.1.131:63682 disconnected
+GET /js/wow.js HTTP/1.1
+GET /js/jquery.ui.totop.js HTTP/1.1
+[socket 5] 192.168.1.131:65218 connected
+[socket 24] rcount 1 192.168.1.131:64194 disconnected
+GET /js/jquery.mobile.customized.min.js HTTP/1.1
+[socket 32] 192.168.1.131:65474 connected
+[socket 4] rcount 1 192.168.1.131:64706 disconnected
+[socket 23] rcount 1 192.168.1.131:63938 disconnected
+[socket 25] rcount 1 192.168.1.131:64450 disconnected
+GET /js/camera.js HTTP/1.1
+[socket 28] rcount 1 192.168.1.131:64962 disconnected
+[socket 5] rcount 1 192.168.1.131:65218 disconnected
+[socket 33] 192.168.1.131:195 connected
+[socket 5] 192.168.1.131:451 connected
+GET /js/jquery.fancybox-media.js HTTP/1.1
+[socket 28] 192.168.1.131:1219 connected
+[socket 23] 192.168.1.131:707 connected
+GET /js/jquery.fancybox-buttons.js HTTP/1.1
+GET /js/jquery.rd-parallax.js HTTP/1.1
+[socket 25] 192.168.1.131:963 connected
+GET /js/jquery.unveil.js HTTP/1.1
+[socket 23] rcount 1 192.168.1.131:707 disconnected
+GET /js/jquery.fancybox.js HTTP/1.1
+[socket 28] rcount 1 192.168.1.131:1219 disconnected
+[socket 5] rcount 1 192.168.1.131:451 disconnected
+[socket 32] rcount 1 192.168.1.131:65474 disconnected
+[socket 25] rcount 1 192.168.1.131:963 disconnected
+[socket 33] rcount 1 192.168.1.131:195 disconnected
+[socket 34] 192.168.1.131:1475 connected
+[socket 5] 192.168.1.131:1731 connected
+[socket 25] 192.168.1.131:1987 connected
+[socket 28] 192.168.1.131:2243 connected
+GET /images/slide03_thumb.jpg HTTP/1.1
+GET /images/camera-loader.gif HTTP/1.1
+[socket 28] rcount 1 192.168.1.131:2243 disconnected
+[socket 34] rcount 1 192.

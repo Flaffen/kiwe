@@ -49,41 +49,50 @@ void *handle_http_request(void *data)
 	char s[INET6_ADDRSTRLEN];
 	struct sockaddr_storage their_addr = re->their_addr;
 	int newfd = re->sockfd;
+	int rcount = 0;
 
 	inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *) &their_addr), s, sizeof(s));
-	printf("%s:%d connected\n", s, ((struct sockaddr_in *) &their_addr)->sin_port);
+	printf("[socket %d] %s:%d connected\n", newfd, s, ((struct sockaddr_in *) &their_addr)->sin_port);
 
 	char request[65536];
 
-	recv(newfd, request, 65536, 0);
-	char *first = request;
-	char first_line[512] = {0};
-	char method[16], path[256];
+	while (recv(newfd, request, 65536, 0) > 0) {
+		rcount++;
+		char *first = request;
+		char first_line[512] = {0};
+		char method[16], path[256];
 
-	consume_http_line(&first, first_line);
-	sscanf(first_line, "%s %s", method, path);
+		consume_http_line(&first, first_line);
+		sscanf(first_line, "%s %s", method, path);
 
-	struct llist *req_headers = get_request_headers(request);
-	struct response *resp = get_response(method, path, req_headers);
+		printf("%s\n", first_line);
 
-	size_t max_response_length = 256000;
+		struct llist *req_headers = get_request_headers(request);
+		struct response *resp = get_response(method, path, req_headers);
 
-	char *response_data = malloc(max_response_length);
+		size_t max_response_length = 256000;
 
-	memset(response_data, 0, max_response_length);
+		char *response_data = malloc(max_response_length);
 
-	assemble_response_data(resp, response_data);
+		memset(response_data, 0, max_response_length);
 
-	send(newfd, response_data, max_response_length, 0);
+		assemble_response_data(resp, response_data);
 
-	llist_destroy(req_headers);
-	free_response(resp);
-	free(response_data);
+		print_headers(resp->headers);
+
+		send(newfd, response_data, max_response_length, 0);
+
+		llist_destroy(req_headers);
+		free_response(resp);
+		free(response_data);
+
+		memset(request, 0, 65536);
+	}
 
 	free(re);
 
 	close(newfd);
-	printf("%s:%d disconnected\n", s, ((struct sockaddr_in *) &their_addr)->sin_port);
+	printf("%s:%d disconnected, requests served on one connection - %d\n", s, ((struct sockaddr_in *) &their_addr)->sin_port, rcount);
 
 	pthread_exit((void *) 0);
 }
@@ -108,7 +117,7 @@ int main(int argc, char *argv[])
 
 		newfd = accept(listenfd, (struct sockaddr *) &their_addr, &sin_size);
 		if (newfd == -1) {
-			// perror("accept");
+			perror("accept");
 			continue;
 		}
 
