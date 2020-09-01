@@ -73,7 +73,7 @@ void *handle_http_request(void *data)
 		struct llist *req_headers = get_request_headers(request);
 		struct response *resp = get_response(method, path, req_headers);
 
-		size_t max_response_length = 256000 + resp->data_len;
+		size_t max_response_length = 32000 + resp->data_len;
 
 		char *response_data = malloc(max_response_length);
 
