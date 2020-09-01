@@ -43,6 +43,9 @@ void assemble_response_data(struct response *resp, char response_data[])
 	memcpy(startbody, resp->data, resp->data_len);
 }
 
+/*
+ * This function should accept multiple HTTP requests but for some reason closes the connection after the first one, unlike testfunc(). The problem is in the while loop somewhere.
+ */
 void *handle_http_request(void *data)
 {
 	struct request_info *re = (struct request_info *) data;
@@ -91,8 +94,45 @@ void *handle_http_request(void *data)
 
 	free(re);
 
-	close(newfd);
 	printf("%s:%d disconnected, requests served on one connection - %d\n", s, ((struct sockaddr_in *) &their_addr)->sin_port, rcount);
+
+	close(newfd);
+	pthread_exit((void *) 0);
+}
+
+/**
+ * This function accepts multiple HTTP requests before dropping the TCP connection due to timeout, which is the expected behavior.
+ */
+void *testfunc(void *data)
+{
+	struct request_info *re = (struct request_info *) data;
+	int newfd = re->sockfd;
+	int rcount = 0;
+
+	printf("%d\n", newfd);
+
+	char request[65536];
+	while (recv(newfd, request, 65536, 0) > 0) {
+		rcount++;
+		printf("%s", request);
+		char *str = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">";
+		char response[512] = {0};
+		strcat(response, "HTTP/1.1 200 OK\nContent-Type: text/html\n");
+		char content_length[64] = {0};
+		sprintf(content_length, "%d", strlen(str));
+		strcat(response, "Content-Length: ");
+		strcat(response, content_length);
+		strcat(response, "\n\n");
+		strcat(response, str);
+
+		printf("%s\n", response);
+
+		send(newfd, response, strlen(response), 0);
+		memset(request, 0, 65536);
+	}
+
+	printf("closed %d\n", rcount);
+	close(newfd);
 
 	pthread_exit((void *) 0);
 }
