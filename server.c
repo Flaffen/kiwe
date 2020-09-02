@@ -22,6 +22,8 @@
 
 #define PORT "3490"
 
+pthread_mutex_t cachemutex;
+
 void append_header_to_response(void *data, void *arg)
 {
 	char *response_data = (char *) arg;
@@ -146,7 +148,8 @@ int main(int argc, char *argv[])
 	int listenfd, newfd;
 	struct sockaddr_storage their_addr;
 	char *port = argc > 1 ? argv[1] : PORT;
-	struct cache *cache = cache_create(50, 0);
+	pthread_mutex_init(&cachemutex, NULL);
+	struct cache *cache = cache_create(50, 0, &cachemutex);
 	pthread_t threadid = 0;
 
 	listenfd = get_listener_socket(port);

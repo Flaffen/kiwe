@@ -38,6 +38,7 @@ struct response *get_404(struct response *resp)
 
 struct response *get_response(char *method, char *path, struct llist *req_headers, struct cache *cache)
 {
+	pthread_mutex_lock(cache->cachemutex);
 	struct response *res = malloc(sizeof(struct response));
 
 	char *status;
@@ -64,7 +65,6 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 	struct cache_entry *ce = cache_get(cache, fullpath);
 
 	if (ce == NULL) {
-		sleep(1);
 		struct file_data *fdata = load_file(fullpath);
 
 		if (fdata != NULL) {
@@ -104,6 +104,7 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 	res->data = malloc(data_len);
 	memcpy(res->data, data, data_len);
 
+	pthread_mutex_unlock(cache->cachemutex);
 	return res;
 }
 

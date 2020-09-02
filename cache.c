@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
 #include "hashtable.h"
 #include "cache.h"
 
@@ -104,7 +105,7 @@ struct cache_entry *dllist_remove_tail(struct cache *cache)
  * max_size: maximum number of entries in the cache
  * hashsize: hashtable size (0 for default)
  */
-struct cache *cache_create(int max_size, int hashsize)
+struct cache *cache_create(int max_size, int hashsize, pthread_mutex_t *cachemutex)
 {
 	struct cache *newcache = malloc(sizeof(*newcache));
 	struct hashtable *newht = hashtable_create(hashsize, NULL);
@@ -112,6 +113,7 @@ struct cache *cache_create(int max_size, int hashsize)
 	newcache->index = newht;
 	newcache->cur_size = 0;
 	newcache->max_size = max_size;
+	newcache->cachemutex = cachemutex;
 
 	return newcache;
 }
