@@ -20,6 +20,7 @@
 #include "response.h"
 #include "file.h"
 #include "mime.h"
+#include "cache.h"
 
 struct response *get_404(struct response *resp)
 {
@@ -35,7 +36,7 @@ struct response *get_404(struct response *resp)
 	return resp;
 }
 
-struct response *get_response(char *method, char *path, struct llist *req_headers)
+struct response *get_response(char *method, char *path, struct llist *req_headers, struct cache *cache)
 {
 	struct response *res = malloc(sizeof(struct response));
 
@@ -59,15 +60,28 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 	char fullpath[512] = {0};
 	strcat(fullpath, "serverroot/");
 	strcat(fullpath, filename);
-	struct file_data *fdata = load_file(fullpath);
 
-	if (fdata != NULL) {
+	struct cache_entry *ce = cache_get(cache, fullpath);
+
+	if (ce == NULL) {
+		sleep(1);
+		struct file_data *fdata = load_file(fullpath);
+
+		if (fdata != NULL) {
+			char *mime_type = mime_type_get(fullpath);
+
+			cache_put(cache, fullpath, mime_type, fdata->data, fdata->len);
+			ce = cache_get(cache, fullpath);
+		}
+	}
+
+	if (ce != NULL) {
 		status = "HTTP/1.1 200 OK\n";
 		char content_length[64];
-		sprintf(content_length, "%zu", fdata->len);
-		data = fdata->data;
-		data_len = fdata->len;
-		char *mime_type = mime_type_get(fullpath);
+		sprintf(content_length, "%zu", ce->content_length);
+		data = ce->content;
+		data_len = ce->content_length;
+		char *mime_type = ce->content_type;
 		llist_append(headers, create_header("Content-Type", mime_type));
 		llist_append(headers, create_header("Content-Length", content_length));
 	} else {

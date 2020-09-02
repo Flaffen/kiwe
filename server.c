@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "request.h"
 #include "response.h"
+#include "cache.h"
 
 #define PORT "3490"
 
@@ -52,6 +53,7 @@ void *handle_http_request(void *data)
 	char s[INET6_ADDRSTRLEN];
 	struct sockaddr_storage their_addr = re->their_addr;
 	int newfd = re->sockfd;
+	struct cache *cache = re->cache;
 	int rcount = 0;
 
 	inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *) &their_addr), s, sizeof(s));
@@ -61,6 +63,7 @@ void *handle_http_request(void *data)
 
 	while (recv(newfd, request, 65536, 0) > 0) {
 		rcount++;
+		printf("curren rcount is %d\n", rcount);
 		char *first = request;
 		char first_line[512] = {0};
 		char method[16], path[256];
@@ -71,7 +74,7 @@ void *handle_http_request(void *data)
 		printf("%s\n", first_line);
 
 		struct llist *req_headers = get_request_headers(request);
-		struct response *resp = get_response(method, path, req_headers);
+		struct response *resp = get_response(method, path, req_headers, cache);
 
 		size_t max_response_length = 32000 + resp->data_len;
 
@@ -90,6 +93,7 @@ void *handle_http_request(void *data)
 		free(response_data);
 
 		memset(request, 0, 65536);
+		cache_print(cache);
 	}
 
 	free(re);
@@ -142,6 +146,7 @@ int main(int argc, char *argv[])
 	int listenfd, newfd;
 	struct sockaddr_storage their_addr;
 	char *port = argc > 1 ? argv[1] : PORT;
+	struct cache *cache = cache_create(50, 0);
 	pthread_t threadid = 0;
 
 	listenfd = get_listener_socket(port);
@@ -161,7 +166,7 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		struct request_info *re = create_request_info(their_addr, newfd);
+		struct request_info *re = create_request_info(their_addr, newfd, cache);
 
 		pthread_create(&threadid, NULL, handle_http_request, (void *) re);
 		pthread_detach(threadid);

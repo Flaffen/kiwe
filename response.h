@@ -6,5 +6,5 @@ struct response {
 	size_t response_len;
 };
 
-struct response *get_response(char *method, char *path, struct llist *req_headers);
+struct response *get_response(char *method, char *path, struct llist *req_headers, struct cache *cache);
 void free_response(struct response *res);

@@ -17,12 +17,14 @@
 #include "hashtable.h"
 #include "utils.h"
 #include "request.h"
+#include "cache.h"
 
-struct request_info *create_request_info(struct sockaddr_storage their_addr, int sockfd) {
+struct request_info *create_request_info(struct sockaddr_storage their_addr, int sockfd, struct cache *cache) {
 	struct request_info *re = malloc(sizeof(struct request_info));
 
 	re->their_addr = their_addr;
 	re->sockfd = sockfd;
+	re->cache = cache;
 
 	return re;
 }

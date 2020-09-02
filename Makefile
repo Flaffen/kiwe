@@ -1,7 +1,7 @@
 all: server
 
-server: server.o net.o llist.o hashtable.o utils.o request.o response.o file.o mime.o
-	clang -g -lpthread -o server server.o net.o llist.o hashtable.o utils.o request.o response.o file.o mime.o
+server: server.o net.o llist.o hashtable.o utils.o request.o response.o file.o mime.o cache.o
+	clang -g -lpthread -o server server.o net.o llist.o hashtable.o utils.o request.o response.o file.o mime.o cache.o
 
 server.o: server.c
 	clang -c -g server.c
@@ -29,6 +29,9 @@ file.o: file.c
 
 mime.o: mime.c
 	clang -c -g mime.c
+
+cache.o: cache.c
+	clang -c -g cache.c
 
 clean:
 	rm -f server.o net.o llist.o hashtable.o utils.o request.o response.o
