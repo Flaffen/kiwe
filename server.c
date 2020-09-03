@@ -24,31 +24,6 @@
 
 pthread_mutex_t cachemutex;
 
-void append_header_to_response(void *data, void *arg)
-{
-	char *response_data = (char *) arg;
-	char **header = (char **) data;
-	char *key = header[0];
-	char *value = header[1];
-	char http_header[512] = {0};
-	sprintf(http_header, "%s: %s\n", key, value);
-
-	strcat(response_data, http_header);
-}
-
-void assemble_response_data(struct response *resp, char response_data[])
-{
-	strcat(response_data, resp->status);
-	llist_foreach(resp->headers, append_header_to_response, response_data);
-
-	strcat(response_data, "\n");
-	char *startbody = strrchr(response_data, '\n') + 1;
-	memcpy(startbody, resp->data, resp->data_len);
-}
-
-/*
- * This function should accept multiple HTTP requests but for some reason closes the connection after the first one, unlike testfunc(). The problem is in the while loop somewhere.
- */
 void *handle_http_request(void *data)
 {
 	struct request_info *re = (struct request_info *) data;
@@ -78,6 +53,7 @@ void *handle_http_request(void *data)
 		struct llist *req_headers = get_request_headers(request);
 		struct response *resp = get_response(method, path, req_headers, cache);
 
+		// Changing this variable affects how many HTTP requests the function will process before closing the TCP connection. Weird.
 		size_t max_response_length = 32000 + resp->data_len;
 
 		char *response_data = malloc(max_response_length);
@@ -106,9 +82,7 @@ void *handle_http_request(void *data)
 	pthread_exit((void *) 0);
 }
 
-/**
- * This function accepts multiple HTTP requests before dropping the TCP connection due to timeout, which is the expected behavior.
- */
+/* This function works just fine */
 void *testfunc(void *data)
 {
 	struct request_info *re = (struct request_info *) data;

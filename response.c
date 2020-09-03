@@ -22,6 +22,29 @@
 #include "mime.h"
 #include "cache.h"
 
+void append_header_to_response(void *data, void *arg)
+{
+	char *response_data = (char *) arg;
+	char **header = (char **) data;
+	char *key = header[0];
+	char *value = header[1];
+	char http_header[512] = {0};
+	sprintf(http_header, "%s: %s\n", key, value);
+
+	strcat(response_data, http_header);
+}
+
+void assemble_response_data(struct response *resp, char response_data[])
+{
+	strcat(response_data, resp->status);
+	llist_foreach(resp->headers, append_header_to_response, response_data);
+
+	strcat(response_data, "\n");
+	char *startbody = strrchr(response_data, '\n') + 1;
+	memcpy(startbody, resp->data, resp->data_len);
+}
+
+
 struct response *get_404(struct response *resp)
 {
 	struct file_data *fdata = load_file("404.html");
