@@ -44,6 +44,7 @@ void *handle_http_request(void *data)
 		char *first = request;
 		char first_line[512] = {0};
 		char method[16], path[256];
+		struct response resp;
 
 		consume_http_line(&first, first_line);
 		sscanf(first_line, "%s %s", method, path);
@@ -51,23 +52,24 @@ void *handle_http_request(void *data)
 		printf("%s\n", first_line);
 
 		struct llist *req_headers = get_request_headers(request);
-		struct response *resp = get_response(method, path, req_headers, cache);
+		get_response(&resp, method, path, req_headers, cache);
 
 		// Changing this variable affects how many HTTP requests the function will process before closing the TCP connection. Weird.
-		size_t max_response_length = 32000 + resp->data_len;
+		// 4kB for headers and stuff and rest is payload length.
+		size_t max_response_length = resp.data_len + 4096;
 
 		char *response_data = malloc(max_response_length);
 
 		memset(response_data, 0, max_response_length);
 
-		assemble_response_data(resp, response_data);
+		assemble_response_data(&resp, response_data);
 
-		print_headers(resp->headers);
+		print_headers(resp.headers);
 
 		send(newfd, response_data, max_response_length, 0);
 
 		llist_destroy(req_headers);
-		free_response(resp);
+		// free_response(resp);
 		free(response_data);
 
 		memset(request, 0, 65536);

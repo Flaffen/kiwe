@@ -8,3 +8,4 @@ void print_header(void *data, void *arg);
 void print_headers(struct llist *headers_list);
 void get_header_string(char **header, char str[]);
 int get_content_length(struct llist *headers);
+size_t get_headers_len(struct llist *headers);

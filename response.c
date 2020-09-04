@@ -59,10 +59,10 @@ struct response *get_404(struct response *resp)
 	return resp;
 }
 
-struct response *get_response(char *method, char *path, struct llist *req_headers, struct cache *cache)
+struct response *get_response(struct response *res, char *method, char *path, struct llist *req_headers, struct cache *cache)
 {
 	pthread_mutex_lock(cache->cachemutex);
-	struct response *res = malloc(sizeof(struct response));
+	// struct response *res = malloc(sizeof(struct response));
 
 	char *status;
 	struct llist *headers = llist_create();
@@ -118,6 +118,7 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 		llist_append(headers, create_header("Content-Length", content_length));
 	}
 
+	/*
 	res->status = malloc(sizeof(strlen(status) + 1));
 	strcpy(res->status, status);
 
@@ -126,9 +127,14 @@ struct response *get_response(char *method, char *path, struct llist *req_header
 	res->data_len = data_len;
 	res->data = malloc(data_len);
 	memcpy(res->data, data, data_len);
+	*/
+	res->status = status;
+	res->headers = headers;
+	res->data_len = data_len;
+	res->data = data;
 
 	pthread_mutex_unlock(cache->cachemutex);
-	return res;
+	// return res;
 }
 
 void free_response(struct response *res)

@@ -115,3 +115,32 @@ int get_content_length(struct llist *headers)
 
 	return -1;
 }
+
+void get_header_len(void *data, void *arg)
+{
+	char **header = (char **) data;
+	size_t *totalsizep = (size_t *) arg;
+
+	// Key and value sizes
+	*totalsizep += strlen(header[0]) + strlen(header[1]);
+
+	// Colon
+	*totalsizep += 1;
+
+	// Space between key and value
+	*totalsizep += 1;
+
+	// Newline
+	*totalsizep += 1;
+
+	*totalsizep += 2;
+}
+
+size_t get_headers_len(struct llist *headers)
+{
+	size_t totalsize = 0;
+	llist_foreach(headers, get_header_len, &totalsize);
+
+
+	return totalsize;
+}
