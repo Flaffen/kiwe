@@ -5,7 +5,7 @@ all: server
 OBJS=server.o net.o llist.o hashtable.o utils.o request.o response.o file.o mime.o cache.o
 
 server: ${OBJS}
-	clang -lpthread -o server $^
+	clang -lpthread -o server ${OBJS}
 
 server.o: server.c
 

@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	char *port = argc > 1 ? argv[1] : PORT;
 	pthread_mutex_init(&cachemutex, NULL);
 	struct cache *cache = cache_create(50, 0, &cachemutex);
-	pthread_t threadid = 0;
+	pthread_t threadid;
 
 	listenfd = get_listener_socket(port);
 	if (listenfd < 0) {
@@ -149,7 +149,6 @@ int main(int argc, char *argv[])
 
 		pthread_create(&threadid, NULL, handle_http_request, (void *) re);
 		pthread_detach(threadid);
-		threadid++;
 	}
 
 	return 0;
